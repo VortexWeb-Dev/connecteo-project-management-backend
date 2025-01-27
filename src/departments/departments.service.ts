@@ -48,14 +48,25 @@ export class DepartmentsService {
       if (error instanceof NotFoundException) {
         throw error;
       }
-
       throw new BadRequestException('Failed to fetch department');
     }
   }
 
   async update(id: number, updateDepartmentDto: UpdateDepartmentDto) {
     try {
-      return await this.departmentRepository.update(id, updateDepartmentDto);
+      const department = await this.departmentRepository.findOne({
+        where: { id },
+      });
+
+      if (!department) {
+        throw new NotFoundException(`Department with id ${id} not found`);
+      }
+
+      const updatedDepartment = this.departmentRepository.merge(
+        department,
+        updateDepartmentDto,
+      );
+      return await this.departmentRepository.save(updatedDepartment);
     } catch (error) {
       throw new BadRequestException('Failed to update department');
     }
@@ -71,7 +82,8 @@ export class DepartmentsService {
         throw new NotFoundException(`Department with id ${id} not found`);
       }
 
-      return await this.departmentRepository.remove(department);
+      await this.departmentRepository.remove(department);
+      return { message: `Department with id ${id} has been deleted` };
     } catch (error) {
       throw new BadRequestException('Failed to delete department');
     }
