@@ -1,7 +1,9 @@
+import { User } from 'src/users/entities/user.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
+  ManyToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -37,6 +39,9 @@ export class Project {
 
   @Column({ type: 'date', nullable: true })
   end_date: Date;
+
+  @ManyToMany(() => User, (user) => user.projects)
+  users: User[];
 
   @CreateDateColumn()
   created_at: Date;
